@@ -1,0 +1,29 @@
+import numpy as np
+from sklearn.linear_model import Lasso
+from sklearn.datasets import make_regression
+
+# Generate synthetic data
+X, y = make_regression(n_samples=100, n_features=5, noise=0.1, random_state=42)
+
+# Compute feature importance scores (you can use any method)
+feature_importance = np.abs(np.random.randn(X.shape[1]))
+
+# Normalize feature importance scores to sum to 1
+feature_importance /= feature_importance.sum()
+
+# Create an Adaptive Lasso model with feature importance weights
+def adaptive_lasso(alpha, X, y, feature_importance):
+    n, m = X.shape
+    w = np.sqrt(feature_importance)
+    X_weighted = X * w
+    model = Lasso(alpha=alpha)
+    model.fit(X_weighted, y)
+    return model.coef_
+
+# Define a range of alpha values for regularization strength
+alphas = [0.01, 0.1, 1.0]
+
+# Perform Adaptive Lasso with different alpha values
+for alpha in alphas:
+    coefficients = adaptive_lasso(alpha, X, y, feature_importance)
+    print(f"Alpha = {alpha}: Coefficients = {coefficients}")
